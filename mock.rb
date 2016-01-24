@@ -14,19 +14,18 @@ class Mock
     stub_method = @stub_method
     l = lambda { |*args| (stub_args && stub_args != args) ? (raise) : (return value) }
 
-    if @all_instances
+    if @the_stubee.is_a?(Class)
       modu = Module.new
       modu.send(:define_method, stub_method, l)
-      @the_stubee.class_eval { prepend modu }
-    else
-      if @the_stubee.is_a?(Class)
-        modu = Module.new
-        modu.send(:define_method, stub_method, l)
-        @the_stubee.singleton_class.class_eval { prepend modu }
+      if @all_instances
+        @the_stubee.class_eval { prepend modu }
       else
-        @the_stubee.define_singleton_method(stub_method, l)
+        @the_stubee.singleton_class.class_eval { prepend modu }
       end
+    else
+      @the_stubee.define_singleton_method(stub_method, l)
     end
+
   end
 end
 
